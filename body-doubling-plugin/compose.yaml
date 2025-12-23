@@ -1,0 +1,10 @@
+services:
+  my_cassandra:
+    container_name: "cassandra"
+    image: "cassandra:5"
+    ports:
+      - "9042:9042"
+    volumes:
+      - type: bind
+        source: ./cassandra.yaml
+        target: /etc/cassandra/cassandra.yaml
