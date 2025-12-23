@@ -1,0 +1,101 @@
+plugins {
+    id("io.micronaut.application") version "4.6.1"
+    id("com.gradleup.shadow") version "8.3.9"
+    id("io.micronaut.aot") version "4.6.1"
+}
+
+version = "0.0.1"
+group = "coop.stlma.tech.protocolsn.bdp"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation("org.projectlombok:lombok:1.18.24")
+    annotationProcessor("org.projectlombok:lombok:1.18.24")
+
+    //web
+    annotationProcessor("io.micronaut:micronaut-http-validation")
+    implementation("io.micronaut:micronaut-http-client")
+    testImplementation("io.micronaut:micronaut-http-client")
+    annotationProcessor("io.micronaut:micronaut-http-validation")
+    implementation("io.micronaut.validation:micronaut-validation")
+
+    //protocol-sn
+    implementation("coop.stlma.tech.protocolsn:plugin-lib:0.5.2")
+    implementation("coop.stlma.tech.protocolsn:common-lib:0.6.1")
+
+    //serde
+    annotationProcessor("io.micronaut.serde:micronaut-serde-processor")
+    implementation("io.micronaut.serde:micronaut-serde-jackson")
+
+    //logging
+    runtimeOnly("ch.qos.logback:logback-classic")
+
+    //properties
+    runtimeOnly("org.yaml:snakeyaml")
+
+    //security
+    annotationProcessor("io.micronaut.security:micronaut-security-annotations")
+    implementation("io.micronaut.security:micronaut-security-oauth2")
+    implementation("io.micronaut.security:micronaut-security-jwt")
+
+    //db
+    implementation("org.flywaydb:flyway-database-cassandra:11.18.0")
+    implementation("io.micronaut.cassandra:micronaut-cassandra")
+    implementation("io.micronaut.flyway:micronaut-flyway")
+    implementation("com.ing.data:cassandra-jdbc-wrapper:4.13.0")
+
+    testImplementation("org.testcontainers:cassandra")
+    testImplementation("org.testcontainers:testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+
+    //This dependency is used for metrics in the Cassandra driver. For reasons that are not clear to me you will get a
+    //ClassNotFound if you use a Cluster builder, which we do during the repository test, if this is not included as
+    //a dependency even when metrics have not been referenced
+    testImplementation("com.codahale.metrics:metrics-core:3.0.2")
+}
+
+
+application {
+    mainClass = "coop.stlma.tech.protocolsn.bdp.Application"
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("21")
+    targetCompatibility = JavaVersion.toVersion("21")
+}
+
+
+graalvmNative.toolchainDetection = false
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("coop.stlma.tech.protocolsn.bdp.*")
+    }
+    aot {
+        // Please review carefully the optimizations enabled below
+        // Check https://micronaut-projects.github.io/micronaut-aot/latest/guide/ for more details
+        optimizeServiceLoading = false
+        convertYamlToJava = false
+        precomputeOperations = true
+        cacheEnvironment = true
+        optimizeClassLoading = true
+        deduceEnvironment = true
+        optimizeNetty = true
+        replaceLogbackXml = true
+        configurationProperties.put("micronaut.security.jwks.enabled","false")
+        configurationProperties.put("micronaut.security.openid-configuration.enabled","false")
+    }
+}
+
+
+tasks.named("dockerfileNative") {
+    jdkVersion = "21"
+}
+
+

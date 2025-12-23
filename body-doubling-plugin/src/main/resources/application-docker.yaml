@@ -1,0 +1,18 @@
+cassandra:
+  default:
+    basic:
+      contact-points:
+        - localhost:9042
+    advanced:
+      auth-provider:
+        class: PlainTextAuthProvider
+        username: cassandra
+        password: cassandra
+
+flyway:
+  datasources:
+    default:
+      enabled: true
+      url: jdbc:cassandra://host.docker.internal:9042/body_double?localdatacenter=datacenter1
+      user: cassandra
+      password: cassandra

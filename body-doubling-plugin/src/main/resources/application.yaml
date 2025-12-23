@@ -1,0 +1,25 @@
+micronaut:
+  security:
+    authentication: cookie
+  application:
+    name: body-doubling-plugin
+
+cassandra:
+  default:
+    basic:
+      session-name: defaultSession
+      load-balancing-policy:
+        local-datacenter: datacenter1
+    advanced:
+      ssl-engine-factory: DefaultSslEngineFactory
+      control-connection:
+        schema-agreement:
+          timout: 20
+
+flyway:
+  datasources:
+    default:
+      driver-class-name: com.ing.data.cassandra.jdbc.CassandraDriver
+      locations: classpath:db/migrations
+      sql-migration-suffixes: .cql
+      default-schema: body_double
